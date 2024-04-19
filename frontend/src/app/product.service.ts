@@ -16,6 +16,7 @@ export class ProductService {
       }
       const data = await response.json(); // This extracts the JSON body content
       const productsArray: ProductTile[] = Object.values(data);
+      console.log('Products:', productsArray);
       return productsArray;
     } catch (error) {
       console.error('Failed to load all products:', error);

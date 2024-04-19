@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProductTileComponent } from '../product-tile/product-tile.component';
 import { ProductService } from '../product.service';
 import { ProductTile } from '../product-tile';
+import { DataViewModule } from 'primeng/dataview';
 
 @Component({
   selector: 'app-home',

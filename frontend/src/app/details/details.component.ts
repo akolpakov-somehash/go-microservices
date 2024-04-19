@@ -14,7 +14,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
   ],
   template: `
   <article>
-    <img class="listing-photo" [src]="productTile?.image"
+    <img class="listing-photo" [src]="'assets/products/'+productTile?.image"
       alt="Exterior photo of {{productTile?.name}}"/>
     <section class="listing-description">
       <h2 class="listing-heading">{{productTile?.name}}</h2>
