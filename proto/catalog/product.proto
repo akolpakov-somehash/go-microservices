@@ -1,0 +1,32 @@
+syntax="proto3";
+package product;
+
+option go_package = "github.com/akolpakov-somehash/go-microservices/proto/catalog/product";
+
+message Product {
+  uint64 id = 1;
+  string name = 2;
+  string sku = 3;
+  string description = 4;
+  float price = 5;
+  string image = 6;
+}
+
+message ProductId {
+  uint64 id = 1;
+}
+
+message ProductList {
+  map<uint64, Product> products = 1;
+}
+
+message Empty {}
+
+service ProductInfo {
+  rpc GetProductInfo(ProductId) returns (Product) {}
+  rpc GetProductList(Empty) returns (ProductList) {}
+  rpc AddProduct(Product) returns (ProductId) {}
+  rpc UpdateProduct(Product) returns (Empty) {}
+  rpc DeleteProduct(ProductId) returns (Empty) {}
+}
+
