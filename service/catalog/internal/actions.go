@@ -5,7 +5,7 @@ import (
 	"log"
 	"sync"
 
-	pb "github.com/akolpakov-somehash/crispy-spoon/proto/catalog/product"
+	pb "github.com/akolpakov-somehash/go-microservices/proto/catalog/product"
 	"gorm.io/gorm"
 )
 
