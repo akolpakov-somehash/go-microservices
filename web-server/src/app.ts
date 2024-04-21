@@ -1,9 +1,10 @@
 import express, { Request, Response } from 'express';
-import  {Session}  from 'express-session';
 import cors from 'cors';
 import { credentials } from '@grpc/grpc-js';
 import { ProductInfoClient } from '../generated/product_grpc_pb';
 import { Empty, Product, ProductId, ProductList } from '../generated/product_pb';
+import jwt from 'jsonwebtoken';
+
 
 // Load the package definition
 
@@ -16,7 +17,33 @@ app.use(cors());
 
 const restPort = 3000;
 
-app.get('/products', (req: Request, res: Response) => {
+const JWT_SECRET = 'your_secret_key';
+
+const defaultUserId = '-1';
+
+// Middleware to validate JWT
+const authenticateToken = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    // If token is not present, create a new one
+    if (token == null) {
+        const newUser = { id: defaultUserId, name: 'Default User' }; // Define default user properties
+        const newToken = jwt.sign(newUser, JWT_SECRET, { expiresIn: '1h' }); // Set an expiration for security
+        (req as any).user = newUser;
+        req.headers['authorization'] = `Bearer ${newToken}`; // Optionally add the new token to headers
+        next(); // Proceed with the request
+    } else {
+        // Verify the existing token
+        jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+            if (err) return res.sendStatus(403); // Forbidden if token is invalid
+            (req as any).user = user;
+            next();
+        });
+    }
+};
+
+app.get('/products', authenticateToken, (req: Request, res: Response) => {
     productStub.getProductList(new Empty(), (err, products: ProductList) => {
         if (err) {
             console.error(err);
@@ -55,5 +82,5 @@ app.get('/products/:id', (req: Request, res: Response) => {
 });
 
 app.listen(restPort, () => {
-  console.log(`RESTful API is listening on port ${restPort}`);
+    console.log(`RESTful API is listening on port ${restPort}`);
 });
