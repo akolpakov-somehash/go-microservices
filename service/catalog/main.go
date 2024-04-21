@@ -8,7 +8,7 @@ import (
 	"net"
 	"os"
 
-	pb "github.com/akolpakov-somehash/crispy-spoon/proto/catalog/product"
+	pb "github.com/akolpakov-somehash/go-microservices/proto/catalog/product"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

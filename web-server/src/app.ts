@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import  {Session}  from 'express-session';
 import cors from 'cors';
 import { credentials } from '@grpc/grpc-js';
 import { ProductInfoClient } from '../generated/product_grpc_pb';
