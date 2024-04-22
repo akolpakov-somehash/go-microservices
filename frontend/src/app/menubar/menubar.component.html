@@ -1,0 +1,12 @@
+<div class="card">
+    <p-menubar [model]="items">
+        <ng-template pTemplate="start">
+            <img src="/assets/logo.png" height="40" class="mr-2" />
+        </ng-template>
+    </p-menubar>
+    <p-overlay [(visible)]="overlayVisible"
+        [responsive]="{ breakpoint: '640px', direction: 'bottom', contentStyleClass: 'h-20rem' }"
+        contentStyleClass="p-4 surface-overlay shadow-2 border-round">
+    <app-minicart></app-minicart>
+    </p-overlay>
+</div>
