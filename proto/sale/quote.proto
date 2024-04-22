@@ -7,24 +7,24 @@ option go_package = "github.com/akolpakov-somehash/go-microservices/proto/sale/q
 message Empty {}
 
 message CustomerId {
-    string id = 1;
+    int32 id = 1;
 }
 
 message QuoteItem {
-    string id = 1;
-    string productId = 2;
-    string price = 3;
+    int32 id = 1;
+    int32 productId = 2;
+    float price = 3;
 }
 
 message Quote {
     string id = 1;
-    string customerId = 2;
+    int32 customerId = 2;
     repeated QuoteItem items = 3;
 }
 
 message ProductRequest {
-    string customerId = 1;
-    string productId = 2;
+    int32 customerId = 1;
+    int32 productId = 2;
     int32 quantity = 3;
 }
 
