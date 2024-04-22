@@ -1,7 +1,17 @@
 <article>
-    <img class="listing-photo" [src]="'assets/products/'+productTile?.image"
-      alt="Exterior photo of {{productTile?.name}}"/>
-    <section class="listing-description">
-      <h2 class="listing-heading">{{productTile?.name}}</h2>
-    </section>
-  </article>
+  <img class="listing-photo" [src]="'assets/products/'+productTile?.image"
+    alt="Exterior photo of {{productTile?.name}}" />
+  <p-card class="listing-card">
+    <p-header>
+      <div class="p-card-title">{{productTile?.name}}</div>
+    </p-header>
+    <div class="p-card-content">
+      <p>$ {{productTile?.price}}</p>
+      <p>{{productTile?.description}}</p>
+    </div>
+    <p-footer>
+      <button pButton type="button" label="Add to Cart" icon="pi pi-shopping-cart"
+        (click)="addToCart(productTile!)"></button>
+    </p-footer>
+  </p-card>
+</article>
