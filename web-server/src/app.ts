@@ -7,19 +7,32 @@ import { Quote, QuoteItem, ProductRequest, CustomerId } from '../generated/quote
 import { Empty, Product, ProductId, ProductList } from '../generated/product_pb';
 import jwt from 'jsonwebtoken';
 
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+interface Env {
+    CATALOG_GRPC_SERVER: string
+    QUOTE_GRPC_SERVER: string
+    SERVER_PORT: string
+}
+
+const env: Env = {
+    CATALOG_GRPC_SERVER: process.env.CATALOG_GRPC_SERVER || 'localhost:50051',
+    QUOTE_GRPC_SERVER: process.env.QUOTE_GRPC_SERVER || 'localhost:50052',
+    SERVER_PORT: process.env.SERVER_PORT || '3000',
+};
 
 
 // Load the package definition
 
 // Create a stub for the ProductInfo service
-const productStub = new ProductInfoClient('localhost:50051', credentials.createInsecure());
-const quoteStub = new QuoteServiceClient('localhost:50052', credentials.createInsecure());
+
+const productStub = new ProductInfoClient(env.CATALOG_GRPC_SERVER, credentials.createInsecure());
+const quoteStub = new QuoteServiceClient(env.QUOTE_GRPC_SERVER, credentials.createInsecure());
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-
-const restPort = 3000;
 
 const JWT_SECRET = 'your_secret_key';
 
@@ -125,6 +138,6 @@ app.get('/quote/', (req: Request, res: Response) => {
 
 
 
-app.listen(restPort, () => {
-    console.log(`RESTful API is listening on port ${restPort}`);
+app.listen(env.SERVER_PORT, () => {
+    console.log(`RESTful API is listening on port ${env.SERVER_PORT}`);
 });

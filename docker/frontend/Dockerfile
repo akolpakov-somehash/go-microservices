@@ -1,0 +1,11 @@
+FROM node:latest
+
+WORKDIR /usr/src/app
+
+RUN npm install -g @angular/cli
+
+COPY frontend /usr/src/app
+
+RUN npm install
+
+CMD ["ng", "serve", "--host", "0.0.0.0", "--disable-host-check", "--configuration", "docker"]
