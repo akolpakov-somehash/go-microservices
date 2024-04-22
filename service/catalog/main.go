@@ -7,8 +7,10 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	pb "github.com/akolpakov-somehash/go-microservices/proto/catalog/product"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -35,10 +37,22 @@ func main() {
 	dbName := os.Getenv("DB_NAME")
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbUser, dbPassword, dbHost, dbPort, dbName)
+	var db *gorm.DB
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	operation := func() error {
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+		return err
+	}
+
+	exponentialBackOff := backoff.NewExponentialBackOff()
+	exponentialBackOff.MaxElapsedTime = 2 * time.Minute
+	exponentialBackOff.MaxInterval = 10 * time.Second
+
+	err = backoff.Retry(operation, exponentialBackOff)
 	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
+	} else {
+		fmt.Println("Connected to database.")
 	}
 	db.AutoMigrate(&internal.DbProduct{})
 	flag.Parse()

@@ -1,0 +1,78 @@
+services:
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pwd
+      MYSQL_DATABASE: ecommerce
+      MYSQL_USER: ecom
+      MYSQL_PASSWORD: ecom_pwd
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - backend
+  
+  catalog-grpc-server:
+    build:
+      context: .
+      dockerfile: docker/service/catalog/Dockerfile
+    ports:
+      - "50051:50051"
+    networks:
+      - backend
+    environment:
+      - DB_USER=root
+      - DB_PASSWORD=root_pwd
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=ecommerce
+    depends_on:
+      - mysql
+  
+  sale-grpc-server:
+    build:
+      context: .
+      dockerfile: docker/service/sale/Dockerfile
+    ports:
+      - "50052:50052"
+    networks:
+      - backend
+    depends_on:
+      - mysql
+
+  node-webserver:
+      build:      
+        context: .
+        dockerfile: docker/web-server/Dockerfile
+      ports:
+        - "3000:3000"
+      environment:
+        - CATALOG_GRPC_SERVER=host.docker.internal:50051
+        - QUOTE_GRPC_SERVER=host.docker.internal:50052
+        - SERVER_PORT=3000
+      networks:
+        - backend
+        - frontend
+      depends_on:
+        - catalog-grpc-server
+
+  angular-app:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_SERVER=host.docker.internal:3000
+    networks:
+      - frontend
+    depends_on:
+      - node-webserver
+
+networks:
+  backend:
+  frontend:
+
+volumes:
+  mysql-data:

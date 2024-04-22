@@ -8,6 +8,8 @@ github.com/akolpakov-somehash/crispy-spoon v0.0.0-20240418170528-7fdf060414b2 h1
 github.com/akolpakov-somehash/crispy-spoon v0.0.0-20240418170528-7fdf060414b2/go.mod h1:hehEylQ7JXYCEebX31DwKHJttUhOub1gbAOleusIs/U=
 github.com/akolpakov-somehash/go-microservices v0.0.0-20240421134057-6236e1dfa8b4 h1:iTcKd1UyDB7uJS7C1U8ZY9kx5QfUOdQmz4X9/mJSlXo=
 github.com/akolpakov-somehash/go-microservices v0.0.0-20240421134057-6236e1dfa8b4/go.mod h1:eGpFD/5y71OG7vZyBsZkzfD4Jg5oCZ21jh+VbQHPAwM=
+github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
+github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/go-sql-driver/mysql v1.7.0/go.mod h1:OXbVy3sEdcQ2Doequ6Z5BW6fXNQTmx+9S1MCJN5yJMI=
 github.com/go-sql-driver/mysql v1.8.1 h1:LedoTUt/eveggdHS9qUFC1EFSa8bU2+1pZjSRpvNJ1Y=
 github.com/go-sql-driver/mysql v1.8.1/go.mod h1:wEBSXgmK//2ZFJyE+qWnIsVGmvmEKlqwuVSjsCm7DZg=
