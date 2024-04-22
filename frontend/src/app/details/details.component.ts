@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../product.service';
 import { ProductTile } from '../product-tile';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-details',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    CardModule,
   ],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss'
@@ -21,12 +21,6 @@ export class DetailsComponent {
   productService = inject(ProductService);
   productTile: ProductTile | undefined;
 
-  applyForm = new FormGroup({
-    firstName: new FormControl(''),
-    lastName: new FormControl(''),
-    email: new FormControl('')
-  });
-
   constructor() {
     const productId = parseInt(this.route.snapshot.params['id'], 10);
     this.productService.getProductById(productId).then(productTile => {
@@ -34,12 +28,7 @@ export class DetailsComponent {
     });
   }
 
-  submitApplication() {
-    this.productService.submitApplication(
-      this.applyForm.value.firstName ?? '',
-      this.applyForm.value.lastName ?? '',
-      this.applyForm.value.email ?? ''
-    );
+  addToCart(productTile: ProductTile) {
+    // this.productService.addToCart(this.productTile);
   }
-
 }

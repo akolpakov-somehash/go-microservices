@@ -5,6 +5,7 @@ import { ProductTile } from '../product-tile';
 import { DataViewModule } from 'primeng/dataview';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { QuoteService } from '../quote.service';
 
 @Component({
   selector: 'app-home',
@@ -23,6 +24,7 @@ export class HomeComponent {
   productTileList: ProductTile[] = [];
   filteredTileList: ProductTile[] = [];
   productService: ProductService = inject(ProductService);
+  quoteService: QuoteService = inject(QuoteService);
 
   constructor() {
     this.productService.getAllProducts().then((productTileList: ProductTile[]) => {
@@ -40,6 +42,11 @@ export class HomeComponent {
     this.filteredTileList = this.filteredTileList.filter(
       productTile => productTile?.name.toLowerCase().includes(text.toLowerCase())
     );
+  }
+
+  async addProduct(id: number, qty: number) {
+    const quote = await this.quoteService.addProduct(id, qty);
+    console.log('Quote:', quote);
   }
 
 }

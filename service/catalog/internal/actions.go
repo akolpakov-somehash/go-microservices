@@ -63,7 +63,7 @@ func (s *Server) GetProductList(ctx context.Context, in *pb.Empty) (*pb.ProductL
 	var mu sync.Mutex
 	for _, product := range dbProducts {
 		wg.Add(1)
-		go func() {
+		go func(product *DbProduct) {
 			defer wg.Done()
 			defer mu.Unlock()
 
@@ -71,7 +71,7 @@ func (s *Server) GetProductList(ctx context.Context, in *pb.Empty) (*pb.ProductL
 			productToProto(product, protoProduct)
 			mu.Lock()
 			protoProducts[product.ID] = protoProduct
-		}()
+		}(product)
 	}
 	wg.Wait()
 

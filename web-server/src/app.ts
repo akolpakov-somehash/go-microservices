@@ -2,14 +2,18 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { credentials } from '@grpc/grpc-js';
 import { ProductInfoClient } from '../generated/product_grpc_pb';
+import { QuoteServiceClient } from '../generated/quote_grpc_pb';
+import { Quote, QuoteItem, ProductRequest, CustomerId } from '../generated/quote_pb';
 import { Empty, Product, ProductId, ProductList } from '../generated/product_pb';
 import jwt from 'jsonwebtoken';
+
 
 
 // Load the package definition
 
 // Create a stub for the ProductInfo service
 const productStub = new ProductInfoClient('localhost:50051', credentials.createInsecure());
+const quoteStub = new QuoteServiceClient('localhost:50052', credentials.createInsecure());
 
 const app = express();
 app.use(express.json());
@@ -19,7 +23,7 @@ const restPort = 3000;
 
 const JWT_SECRET = 'your_secret_key';
 
-const defaultUserId = '-1';
+const defaultUserId = -1;
 
 // Middleware to validate JWT
 const authenticateToken = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -80,6 +84,46 @@ app.get('/products/:id', (req: Request, res: Response) => {
         }
     });
 });
+
+app.post('/add-product/:id/:qty', (req: Request, res: Response) => {
+    const productRequest = new ProductRequest();
+    productRequest.setCustomerid(defaultUserId);
+    productRequest.setProductid(Number(req.params.id));
+    productRequest.setQuantity(Number(req.params.qty));
+
+
+    quoteStub.addProduct(productRequest, (err, quote: Quote) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error adding product');
+        }
+        try {
+            res.json(quote.toObject());
+        } catch (error) {
+            console.error('Error sending product:', error);
+            res.status(500).send('Error processing product');
+        }
+    });
+});
+
+app.get('/quote/', (req: Request, res: Response) => {
+    const customerId = new CustomerId();
+    customerId.setId(defaultUserId);
+    quoteStub.getQuote(customerId, (err, quote: Quote) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error retrieving quote');
+        }
+        try {
+            res.json(quote.toObject());
+        } catch (error) {
+            console.error('Error sending quote:', error);
+            res.status(500).send('Error processing quote');
+        }
+    });
+});
+
+
 
 app.listen(restPort, () => {
     console.log(`RESTful API is listening on port ${restPort}`);
