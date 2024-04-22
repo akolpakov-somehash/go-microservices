@@ -32,33 +32,4 @@ service QuoteService {
     rpc AddProduct(ProductRequest) returns (Quote) {}
     rpc RemoveProduct(ProductRequest) returns (Quote) {}
     rpc UpdateQuantity(ProductRequest) returns (Quote) {}
-}{
-    "customerid": -1,
-    "itemsList": [
-        {
-            "productid": 12,
-            "quantity": 1,
-            "price": 0
-        },
-        {
-            "productid": 2,
-            "quantity": 1,
-            "price": 0
-        },
-        {
-            "productid": 1,
-            "quantity": 1,
-            "price": 0
-        },
-        {
-            "productid": 10,
-            "quantity": 1,
-            "price": 0
-        },
-        {
-            "productid": 18,
-            "quantity": 1,
-            "price": 0
-        }
-    ]
 }
