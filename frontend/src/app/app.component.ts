@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
+import { MenubarComponent } from './menubar/menubar.component';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +9,7 @@ import { HomeComponent } from './home/home.component';
   imports: [
     HomeComponent,
     RouterModule,
+    MenubarComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
