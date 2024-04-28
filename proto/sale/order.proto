@@ -1,0 +1,54 @@
+syntax="proto3";
+package quote;
+
+option go_package = "github.com/akolpakov-somehash/go-microservices/proto/sale/order";
+
+
+message Empty {}
+
+message CustomerId {
+    int32 id = 1;
+}
+
+message OrderId {
+    int32 id = 1;
+}
+
+message OrderItem {
+    int32 productId = 2;
+    int32 quantity = 3;
+    float price = 4;
+}
+
+message Order {
+    int32 customerId = 2;
+    repeated OrderItem items = 3;
+}
+
+message OrderList {
+    repeated Order orders = 1;
+}
+
+message ProductRequest {
+    int32 customerId = 1;
+    int32 productId = 2;
+    int32 quantity = 3;
+}
+
+enum OrderStatus {
+    STARTED = 0;
+    PROCESSED = 1;
+    COMPLETED = 2;
+}
+
+message ProcessStatus {
+    int32 orderId = 1;
+    OrderStatus status = 2;
+    string message = 3;
+}
+
+service QuoteService {
+    rpc GetOrders(CustomerId) returns (OrderList) {}
+    rpc GetOrder(OrderId) returns (Order) {}
+    rpc PlaceOrder(CustomerId) returns (stream ProcessStatus) {}
+}
