@@ -19,52 +19,52 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	QuoteService_GetOrders_FullMethodName  = "/quote.QuoteService/GetOrders"
-	QuoteService_GetOrder_FullMethodName   = "/quote.QuoteService/GetOrder"
-	QuoteService_PlaceOrder_FullMethodName = "/quote.QuoteService/PlaceOrder"
+	OrderService_GetOrders_FullMethodName  = "/quote.OrderService/GetOrders"
+	OrderService_GetOrder_FullMethodName   = "/quote.OrderService/GetOrder"
+	OrderService_PlaceOrder_FullMethodName = "/quote.OrderService/PlaceOrder"
 )
 
-// QuoteServiceClient is the client API for QuoteService service.
+// OrderServiceClient is the client API for OrderService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type QuoteServiceClient interface {
+type OrderServiceClient interface {
 	GetOrders(ctx context.Context, in *CustomerId, opts ...grpc.CallOption) (*OrderList, error)
 	GetOrder(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error)
-	PlaceOrder(ctx context.Context, in *CustomerId, opts ...grpc.CallOption) (QuoteService_PlaceOrderClient, error)
+	PlaceOrder(ctx context.Context, in *CustomerId, opts ...grpc.CallOption) (OrderService_PlaceOrderClient, error)
 }
 
-type quoteServiceClient struct {
+type orderServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewQuoteServiceClient(cc grpc.ClientConnInterface) QuoteServiceClient {
-	return &quoteServiceClient{cc}
+func NewOrderServiceClient(cc grpc.ClientConnInterface) OrderServiceClient {
+	return &orderServiceClient{cc}
 }
 
-func (c *quoteServiceClient) GetOrders(ctx context.Context, in *CustomerId, opts ...grpc.CallOption) (*OrderList, error) {
+func (c *orderServiceClient) GetOrders(ctx context.Context, in *CustomerId, opts ...grpc.CallOption) (*OrderList, error) {
 	out := new(OrderList)
-	err := c.cc.Invoke(ctx, QuoteService_GetOrders_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, OrderService_GetOrders_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *quoteServiceClient) GetOrder(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error) {
+func (c *orderServiceClient) GetOrder(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*Order, error) {
 	out := new(Order)
-	err := c.cc.Invoke(ctx, QuoteService_GetOrder_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, OrderService_GetOrder_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *quoteServiceClient) PlaceOrder(ctx context.Context, in *CustomerId, opts ...grpc.CallOption) (QuoteService_PlaceOrderClient, error) {
-	stream, err := c.cc.NewStream(ctx, &QuoteService_ServiceDesc.Streams[0], QuoteService_PlaceOrder_FullMethodName, opts...)
+func (c *orderServiceClient) PlaceOrder(ctx context.Context, in *CustomerId, opts ...grpc.CallOption) (OrderService_PlaceOrderClient, error) {
+	stream, err := c.cc.NewStream(ctx, &OrderService_ServiceDesc.Streams[0], OrderService_PlaceOrder_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &quoteServicePlaceOrderClient{stream}
+	x := &orderServicePlaceOrderClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -74,16 +74,16 @@ func (c *quoteServiceClient) PlaceOrder(ctx context.Context, in *CustomerId, opt
 	return x, nil
 }
 
-type QuoteService_PlaceOrderClient interface {
+type OrderService_PlaceOrderClient interface {
 	Recv() (*ProcessStatus, error)
 	grpc.ClientStream
 }
 
-type quoteServicePlaceOrderClient struct {
+type orderServicePlaceOrderClient struct {
 	grpc.ClientStream
 }
 
-func (x *quoteServicePlaceOrderClient) Recv() (*ProcessStatus, error) {
+func (x *orderServicePlaceOrderClient) Recv() (*ProcessStatus, error) {
 	m := new(ProcessStatus)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -91,119 +91,119 @@ func (x *quoteServicePlaceOrderClient) Recv() (*ProcessStatus, error) {
 	return m, nil
 }
 
-// QuoteServiceServer is the server API for QuoteService service.
-// All implementations must embed UnimplementedQuoteServiceServer
+// OrderServiceServer is the server API for OrderService service.
+// All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility
-type QuoteServiceServer interface {
+type OrderServiceServer interface {
 	GetOrders(context.Context, *CustomerId) (*OrderList, error)
 	GetOrder(context.Context, *OrderId) (*Order, error)
-	PlaceOrder(*CustomerId, QuoteService_PlaceOrderServer) error
-	mustEmbedUnimplementedQuoteServiceServer()
+	PlaceOrder(*CustomerId, OrderService_PlaceOrderServer) error
+	mustEmbedUnimplementedOrderServiceServer()
 }
 
-// UnimplementedQuoteServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedQuoteServiceServer struct {
+// UnimplementedOrderServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedOrderServiceServer struct {
 }
 
-func (UnimplementedQuoteServiceServer) GetOrders(context.Context, *CustomerId) (*OrderList, error) {
+func (UnimplementedOrderServiceServer) GetOrders(context.Context, *CustomerId) (*OrderList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrders not implemented")
 }
-func (UnimplementedQuoteServiceServer) GetOrder(context.Context, *OrderId) (*Order, error) {
+func (UnimplementedOrderServiceServer) GetOrder(context.Context, *OrderId) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrder not implemented")
 }
-func (UnimplementedQuoteServiceServer) PlaceOrder(*CustomerId, QuoteService_PlaceOrderServer) error {
+func (UnimplementedOrderServiceServer) PlaceOrder(*CustomerId, OrderService_PlaceOrderServer) error {
 	return status.Errorf(codes.Unimplemented, "method PlaceOrder not implemented")
 }
-func (UnimplementedQuoteServiceServer) mustEmbedUnimplementedQuoteServiceServer() {}
+func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 
-// UnsafeQuoteServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to QuoteServiceServer will
+// UnsafeOrderServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OrderServiceServer will
 // result in compilation errors.
-type UnsafeQuoteServiceServer interface {
-	mustEmbedUnimplementedQuoteServiceServer()
+type UnsafeOrderServiceServer interface {
+	mustEmbedUnimplementedOrderServiceServer()
 }
 
-func RegisterQuoteServiceServer(s grpc.ServiceRegistrar, srv QuoteServiceServer) {
-	s.RegisterService(&QuoteService_ServiceDesc, srv)
+func RegisterOrderServiceServer(s grpc.ServiceRegistrar, srv OrderServiceServer) {
+	s.RegisterService(&OrderService_ServiceDesc, srv)
 }
 
-func _QuoteService_GetOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderService_GetOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CustomerId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QuoteServiceServer).GetOrders(ctx, in)
+		return srv.(OrderServiceServer).GetOrders(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: QuoteService_GetOrders_FullMethodName,
+		FullMethod: OrderService_GetOrders_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QuoteServiceServer).GetOrders(ctx, req.(*CustomerId))
+		return srv.(OrderServiceServer).GetOrders(ctx, req.(*CustomerId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _QuoteService_GetOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderService_GetOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QuoteServiceServer).GetOrder(ctx, in)
+		return srv.(OrderServiceServer).GetOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: QuoteService_GetOrder_FullMethodName,
+		FullMethod: OrderService_GetOrder_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QuoteServiceServer).GetOrder(ctx, req.(*OrderId))
+		return srv.(OrderServiceServer).GetOrder(ctx, req.(*OrderId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _QuoteService_PlaceOrder_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _OrderService_PlaceOrder_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(CustomerId)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(QuoteServiceServer).PlaceOrder(m, &quoteServicePlaceOrderServer{stream})
+	return srv.(OrderServiceServer).PlaceOrder(m, &orderServicePlaceOrderServer{stream})
 }
 
-type QuoteService_PlaceOrderServer interface {
+type OrderService_PlaceOrderServer interface {
 	Send(*ProcessStatus) error
 	grpc.ServerStream
 }
 
-type quoteServicePlaceOrderServer struct {
+type orderServicePlaceOrderServer struct {
 	grpc.ServerStream
 }
 
-func (x *quoteServicePlaceOrderServer) Send(m *ProcessStatus) error {
+func (x *orderServicePlaceOrderServer) Send(m *ProcessStatus) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-// QuoteService_ServiceDesc is the grpc.ServiceDesc for QuoteService service.
+// OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var QuoteService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "quote.QuoteService",
-	HandlerType: (*QuoteServiceServer)(nil),
+var OrderService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "quote.OrderService",
+	HandlerType: (*OrderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetOrders",
-			Handler:    _QuoteService_GetOrders_Handler,
+			Handler:    _OrderService_GetOrders_Handler,
 		},
 		{
 			MethodName: "GetOrder",
-			Handler:    _QuoteService_GetOrder_Handler,
+			Handler:    _OrderService_GetOrder_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "PlaceOrder",
-			Handler:       _QuoteService_PlaceOrder_Handler,
+			Handler:       _OrderService_PlaceOrder_Handler,
 			ServerStreams: true,
 		},
 	},
