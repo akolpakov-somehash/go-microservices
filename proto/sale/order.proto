@@ -47,7 +47,7 @@ message ProcessStatus {
     string message = 3;
 }
 
-service QuoteService {
+service OrderService {
     rpc GetOrders(CustomerId) returns (OrderList) {}
     rpc GetOrder(OrderId) returns (Order) {}
     rpc PlaceOrder(CustomerId) returns (stream ProcessStatus) {}
