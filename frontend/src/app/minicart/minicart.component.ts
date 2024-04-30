@@ -1,7 +1,8 @@
 import { Component, Input, ChangeDetectorRef } from '@angular/core';
 import { OrderListModule } from 'primeng/orderlist';
 import { DialogModule } from 'primeng/dialog';
-import { ProductTile } from '../product-tile';
+import { ProductQuote } from '../product-tile';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-minicart',
@@ -9,13 +10,19 @@ import { ProductTile } from '../product-tile';
   imports: [
     OrderListModule,
     DialogModule,
-
+    ButtonModule,
   ],
   templateUrl: './minicart.component.html',
   styleUrl: './minicart.component.scss'
 })
 export class MinicartComponent {
-  @Input() products!: ProductTile[];
+  @Input() products!: ProductQuote[];
+
+  customerId: number = 1;
 
   constructor(private cdr: ChangeDetectorRef) {}
+
+  placeOrder(customerId: number) {
+    console.log('Placing order...');
+  }
 }

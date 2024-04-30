@@ -2,8 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuItem } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
-import { ProductTile } from '../product-tile';
-import { Quote, QuoteItem } from '../quote';
+import { ProductTile, ProductQuote } from '../product-tile';
+import { Quote } from '../quote';
 import { MinicartComponent } from '../minicart/minicart.component'; 
 import { OverlayModule } from 'primeng/overlay';
 import { ProductService } from '../product.service';
@@ -23,7 +23,7 @@ import { QuoteService } from '../quote.service';
 })
 export class MenubarComponent {
   items: MenuItem[] | undefined;
-  products: ProductTile[] = [];
+  quoteProducts: ProductQuote[] = [];
   productService: ProductService = inject(ProductService);
   quoteService: QuoteService = inject(QuoteService);
 
@@ -49,11 +49,16 @@ export class MenubarComponent {
   async showDialog() {
     const quote: Quote = await this.quoteService.getQuote();
     console.log('Quote:', quote);
+    this.quoteProducts = [];
     for (const item of quote.itemsList) {
       console.log('Item:', item);
       const product: ProductTile | undefined = await this.productService.getProductById(item.productid);
+      const productQuote: ProductQuote = {
+        product: product !== undefined ? product : {} as ProductTile,
+        quantity: item.quantity,
+      };
       if (product !== undefined) { // Check if product is not undefined
-        this.products.push(product);
+        this.quoteProducts.push(productQuote);
       }
     }
     this.overlayVisible = !this.overlayVisible;
