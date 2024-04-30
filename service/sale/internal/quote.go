@@ -20,40 +20,118 @@ type Quote struct {
 
 type QuoteServer struct {
 	pb.UnimplementedQuoteServiceServer
-	quotes    map[int32]*Quote
-	quoteLock sync.RWMutex
+	qouteStorage QuoteStorage
 }
 
-func NewQuoteServer() *QuoteServer {
+func NewQuoteServer() (*QuoteServer, QuoteStorage) {
+	quoteStorage := &QuoteStorageImpl{
+		make(map[int32]*Quote),
+		sync.RWMutex{},
+	}
+
 	return &QuoteServer{
-		quotes:    make(map[int32]*Quote),
-		quoteLock: sync.RWMutex{},
-	}
+		qouteStorage: quoteStorage,
+	}, quoteStorage
 }
 
-func (s *QuoteServer) createEmptyQuote(custimerId int32) *Quote {
-	defer s.quoteLock.Unlock()
-	quote := &Quote{
-		CustomerId: custimerId,
-		Items:      make(map[int32]*QuoteItem),
-	}
-	s.quoteLock.Lock()
-	s.quotes[custimerId] = quote
-	return s.quotes[custimerId]
+type QuoteStorage interface {
+	GetQuote(int32) *Quote
+	AddProduct(customerId int32, productId int32, quantity int32) (*Quote, error)
+	RemoveProduct(customerId int32, productId int32) (*Quote, error)
+	UpdateQuantity(customerId int32, productId int32, quantity int32) (*Quote, error)
+	LockQuoteRead()
+	UnlockQuoteRead()
+	LockQuoteWrite()
+	UnlockQuoteWrite()
 }
+
+type QuoteStorageImpl struct {
+	quotes    map[int32]*Quote
+	qouteLock sync.RWMutex
+}
+
+/**
+ * QuoteStorageImpl
+ */
+
+func (s *QuoteStorageImpl) GetQuote(customerId int32) *Quote {
+	quote, exists := s.quotes[customerId]
+	if !exists {
+		quote = &Quote{
+			CustomerId: customerId,
+			Items:      make(map[int32]*QuoteItem),
+		}
+		s.quotes[customerId] = quote
+	}
+	return quote
+}
+
+func (s *QuoteStorageImpl) LockQuoteRead() {
+	s.qouteLock.RLock()
+}
+
+func (s *QuoteStorageImpl) UnlockQuoteRead() {
+	s.qouteLock.RUnlock()
+}
+
+func (s *QuoteStorageImpl) LockQuoteWrite() {
+	s.qouteLock.Lock()
+}
+
+func (s *QuoteStorageImpl) UnlockQuoteWrite() {
+	s.qouteLock.Unlock()
+}
+
+func (s *QuoteStorageImpl) AddProduct(customerId int32, productId int32, quantity int32) (*Quote, error) {
+	s.LockQuoteWrite()
+	defer s.UnlockQuoteWrite()
+
+	quote := s.GetQuote(customerId)
+	item, exexists := quote.Items[productId]
+	if exexists {
+		item.Quantity += quantity
+	} else {
+		quote.Items[productId] = &QuoteItem{
+			ProductID: productId,
+			Quantity:  quantity,
+		}
+	}
+	return quote, nil
+}
+
+func (s *QuoteStorageImpl) RemoveProduct(customerId int32, productId int32) (*Quote, error) {
+	s.LockQuoteWrite()
+	defer s.UnlockQuoteWrite()
+
+	quote, exists := s.quotes[customerId]
+	if !exists {
+		return nil, fmt.Errorf("quote not found")
+	}
+	delete(quote.Items, productId)
+	return quote, nil
+}
+
+func (s *QuoteStorageImpl) UpdateQuantity(customerId int32, productId int32, quantity int32) (*Quote, error) {
+	s.LockQuoteWrite()
+	defer s.UnlockQuoteWrite()
+
+	quote, exists := s.quotes[customerId]
+	if !exists {
+		return nil, fmt.Errorf("quote not found")
+	}
+
+	quote.Items[productId].Quantity = quantity
+	return quote, nil
+}
+
+/**
+ * QuoteServer
+ */
 
 func (s *QuoteServer) AddProduct(ctx context.Context, in *pb.ProductRequest) (*pb.Quote, error) {
-	s.quoteLock.RLock()
-	quote, exists := s.quotes[in.CustomerId]
-	s.quoteLock.RUnlock()
-	if !exists {
-		quote = s.createEmptyQuote(in.CustomerId)
-	}
-	s.quoteLock.Lock()
-	defer s.quoteLock.Unlock()
-	quote.Items[in.ProductId] = &QuoteItem{
-		ProductID: in.ProductId,
-		Quantity:  in.Quantity,
+	quote, err := s.qouteStorage.AddProduct(in.CustomerId, in.ProductId, in.Quantity)
+	if err != nil {
+		return nil, err
 	}
 	protoQuote := &pb.Quote{}
 	quoteToProto(quote, protoQuote)
@@ -61,42 +139,27 @@ func (s *QuoteServer) AddProduct(ctx context.Context, in *pb.ProductRequest) (*p
 }
 
 func (s *QuoteServer) GetQuote(ctx context.Context, in *pb.CustomerId) (*pb.Quote, error) {
-	s.quoteLock.RLock()
-	quote, exists := s.quotes[in.Id]
-	s.quoteLock.RUnlock()
-	if !exists {
-		quote = s.createEmptyQuote(in.Id)
-	}
+
 	protoQuote := &pb.Quote{}
-	quoteToProto(quote, protoQuote)
+	quoteToProto(s.qouteStorage.GetQuote(in.Id), protoQuote)
 	return protoQuote, nil
 }
 
 func (s *QuoteServer) RemoveProduct(ctx context.Context, in *pb.ProductRequest) (*pb.Quote, error) {
-	s.quoteLock.RLock()
-	quote, exists := s.quotes[in.CustomerId]
-	s.quoteLock.RUnlock()
-	if !exists {
-		return nil, fmt.Errorf("quote not found")
+	quote, err := s.qouteStorage.RemoveProduct(in.CustomerId, in.ProductId)
+	if err != nil {
+		return nil, err
 	}
-	s.quoteLock.Lock()
-	defer s.quoteLock.Unlock()
-	delete(quote.Items, in.ProductId)
 	protoQuote := &pb.Quote{}
 	quoteToProto(quote, protoQuote)
 	return protoQuote, nil
 }
 
 func (s *QuoteServer) UpdateQuantity(ctx context.Context, in *pb.ProductRequest) (*pb.Quote, error) {
-	s.quoteLock.RLock()
-	quote, exists := s.quotes[in.CustomerId]
-	s.quoteLock.RUnlock()
-	if !exists {
-		return nil, fmt.Errorf("quote not found")
+	quote, err := s.qouteStorage.UpdateQuantity(in.CustomerId, in.ProductId, in.Quantity)
+	if err != nil {
+		return nil, err
 	}
-	s.quoteLock.Lock()
-	defer s.quoteLock.Unlock()
-	quote.Items[in.ProductId].Quantity = in.Quantity
 	protoQuote := &pb.Quote{}
 	quoteToProto(quote, protoQuote)
 	return protoQuote, nil
@@ -104,20 +167,18 @@ func (s *QuoteServer) UpdateQuantity(ctx context.Context, in *pb.ProductRequest)
 
 func quoteToProto(quote *Quote, protoQuote *pb.Quote) {
 	protoQuote.CustomerId = quote.CustomerId
-	protoQuote.Items = make([]*pb.QuoteItem, len(quote.Items))
+	protoQuote.Items = make([]*pb.QuoteItem, 0)
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	j := 0
-	for i, item := range quote.Items {
+	for _, item := range quote.Items {
 		wg.Add(1)
-		go func(i int32, item *QuoteItem) {
+		go func(item *QuoteItem) {
 			defer wg.Done()
-			defer mu.Unlock()
 
-			protoQuote.Items[j] = &pb.QuoteItem{ProductId: item.ProductID, Quantity: item.Quantity}
 			mu.Lock()
-			j++
-		}(i, item)
+			defer mu.Unlock()
+			protoQuote.Items = append(protoQuote.Items, &pb.QuoteItem{ProductId: item.ProductID, Quantity: item.Quantity})
+		}(item)
 	}
 	wg.Wait()
 }

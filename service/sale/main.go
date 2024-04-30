@@ -23,7 +23,8 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pbQuote.RegisterQuoteServiceServer(s, internal.NewQuoteServer())
+	qouteServer, _ := internal.NewQuoteServer()
+	pbQuote.RegisterQuoteServiceServer(s, qouteServer)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

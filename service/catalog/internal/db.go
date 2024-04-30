@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 )
 
@@ -19,14 +21,14 @@ func (DbProduct) TableName() string {
 }
 
 const (
-	errorId = 0
+	ErrorId = 0
 )
 
 // Create a new DbProduct
 func CreateProduct(db *gorm.DB, product *DbProduct) (uint64, error) {
 	result := db.Create(product)
 	if result.Error != nil {
-		return errorId, result.Error
+		return ErrorId, fmt.Errorf("failed to create a product: %w", result.Error)
 	}
 	return product.ID, nil
 }
@@ -36,7 +38,7 @@ func GetProductByID(db *gorm.DB, id uint64) (*DbProduct, error) {
 	var product DbProduct
 	result := db.First(&product, id)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, fmt.Errorf("failed to get a product %d: %w", id, result.Error)
 	}
 	return &product, nil
 }
@@ -45,7 +47,7 @@ func GetProductByID(db *gorm.DB, id uint64) (*DbProduct, error) {
 func UpdateProduct(db *gorm.DB, product *DbProduct) error {
 	result := db.Save(product)
 	if result.Error != nil {
-		return result.Error
+		return fmt.Errorf("failed to update a product %d: %w", product.ID, result.Error)
 	}
 	return nil
 }
@@ -54,16 +56,17 @@ func UpdateProduct(db *gorm.DB, product *DbProduct) error {
 func DeleteProductByID(db *gorm.DB, id uint64) error {
 	result := db.Delete(&DbProduct{}, id)
 	if result.Error != nil {
-		return result.Error
+		return fmt.Errorf("failed to delet a product %d: %w", id, result.Error)
 	}
 	return nil
 }
 
+// Get all DbProducts
 func GetAllProducts(db *gorm.DB) ([]*DbProduct, error) {
 	var products []*DbProduct
 	result := db.Find(&products)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, fmt.Errorf("failed to get products: %w", result.Error)
 	}
 	return products, nil
 }
