@@ -1,5 +1,5 @@
 syntax="proto3";
-package quote;
+package order;
 
 option go_package = "github.com/akolpakov-somehash/go-microservices/proto/sale/order";
 
@@ -29,16 +29,12 @@ message OrderList {
     repeated Order orders = 1;
 }
 
-message ProductRequest {
-    int32 customerId = 1;
-    int32 productId = 2;
-    int32 quantity = 3;
-}
 
 enum OrderStatus {
-    STARTED = 0;
-    PROCESSED = 1;
-    COMPLETED = 2;
+    ERROR = 0;
+    STARTED = 1;
+    PROCESSED = 2;
+    COMPLETED = 3;
 }
 
 message ProcessStatus {
