@@ -30,10 +30,11 @@ type OrderServer struct {
 	catalogClient    CatalogClient
 }
 
-func NewOrderServer() *OrderServer {
+func NewOrderServer(quoteStorage QuoteStorage) *OrderServer {
 	return &OrderServer{
-		orders:    make(map[int32]map[int32]*Order),
-		orderLock: sync.RWMutex{},
+		orders:       make(map[int32]map[int32]*Order),
+		orderLock:    sync.RWMutex{},
+		quoteStorage: quoteStorage,
 	}
 }
 
@@ -165,6 +166,7 @@ func (s *OrderServer) PlaceOrder(in *pb.CustomerId, stream pb.OrderService_Place
 	for i := range orderSteps {
 		// Simulating delay between steps
 		time.Sleep(2 * time.Second)
+		fmt.Printf("Sending order process status: %s\n", orderSteps[i].Message)
 		if err := stream.Send(&orderSteps[i]); err != nil {
 			return fmt.Errorf("failed to send order process status: %v", err)
 		}

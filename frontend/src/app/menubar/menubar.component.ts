@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuItem } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
@@ -8,6 +9,7 @@ import { MinicartComponent } from '../minicart/minicart.component';
 import { OverlayModule } from 'primeng/overlay';
 import { ProductService } from '../product.service';
 import { QuoteService } from '../quote.service';
+import { CartOverlayService } from '../cartoverlay.service';
 
 @Component({
   selector: 'app-menubar',
@@ -17,6 +19,7 @@ import { QuoteService } from '../quote.service';
     DialogModule,
     MinicartComponent,
     OverlayModule,
+    CommonModule,
   ],
   templateUrl: './menubar.component.html',
   styleUrl: './menubar.component.scss',
@@ -25,10 +28,8 @@ export class MenubarComponent {
   items: MenuItem[] | undefined;
   quoteProducts: ProductQuote[] = [];
   productService: ProductService = inject(ProductService);
+  cartOverlayService: CartOverlayService = inject(CartOverlayService);
   quoteService: QuoteService = inject(QuoteService);
-
-  overlayVisible: boolean = false;
-
 
   ngOnInit() {
     this.items = [
@@ -57,11 +58,11 @@ export class MenubarComponent {
         product: product !== undefined ? product : {} as ProductTile,
         quantity: item.quantity,
       };
-      if (product !== undefined) { // Check if product is not undefined
+      if (product !== undefined) {
         this.quoteProducts.push(productQuote);
       }
     }
-    this.overlayVisible = !this.overlayVisible;
+    this.cartOverlayService.toggleOverlay();
 }
 
 }

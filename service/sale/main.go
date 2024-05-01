@@ -7,6 +7,7 @@ import (
 	"net"
 	"sale/internal"
 
+	pbOrder "github.com/akolpakov-somehash/go-microservices/proto/sale/order"
 	pbQuote "github.com/akolpakov-somehash/go-microservices/proto/sale/quote"
 
 	"google.golang.org/grpc"
@@ -23,8 +24,10 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	qouteServer, _ := internal.NewQuoteServer()
+	qouteServer, quoteStorage := internal.NewQuoteServer()
 	pbQuote.RegisterQuoteServiceServer(s, qouteServer)
+	orderServer := internal.NewOrderServer(quoteStorage)
+	pbOrder.RegisterOrderServiceServer(s, orderServer)
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

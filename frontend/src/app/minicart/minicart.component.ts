@@ -1,8 +1,11 @@
-import { Component, Input, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { OrderListModule } from 'primeng/orderlist';
 import { DialogModule } from 'primeng/dialog';
 import { ProductQuote } from '../product-tile';
 import { ButtonModule } from 'primeng/button';
+import { OrderService } from '../order.service';
+import { CartOverlayService } from '../cartoverlay.service';
+
 
 @Component({
   selector: 'app-minicart',
@@ -17,12 +20,26 @@ import { ButtonModule } from 'primeng/button';
 })
 export class MinicartComponent {
   @Input() products!: ProductQuote[];
+  private alive = true;
+  cartOverlayService: CartOverlayService = inject(CartOverlayService);
+  orderService: OrderService = inject(OrderService);
 
   customerId: number = 1;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  async placeOrder(customerId: number) {
+    this.cartOverlayService.setOverlayVisible(false);
+    try {
+      for await (let chunk of this.orderService.streamOrders(this.customerId)) {
+        if (!this.alive) break;
+        console.log(chunk); // Outputs each chunk of data as it arrives
+      }
+    } catch (error) {
+      console.error("Error during stream processing:", error);
+    }
 
-  placeOrder(customerId: number) {
-    console.log('Placing order...');
+  }
+
+  ngOnDestroy() {
+    this.alive = false; // Ensures the async loop is stopped when the component is destroyed
   }
 }
