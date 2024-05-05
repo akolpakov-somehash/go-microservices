@@ -9,7 +9,7 @@ export class OrderService {
   constructor() {}
 
   async *streamOrders(customerId: number): AsyncGenerator<string, void, undefined> {
-    const fetchUrl = `${this.url}orders`;
+    const fetchUrl = `${this.url}place`;
     const fetchOptions: RequestInit = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

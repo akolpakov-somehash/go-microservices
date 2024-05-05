@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MenubarModule } from 'primeng/menubar';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, Message } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { ProductTile, ProductQuote } from '../product-tile';
 import { Quote } from '../quote';
@@ -9,7 +9,8 @@ import { MinicartComponent } from '../minicart/minicart.component';
 import { OverlayModule } from 'primeng/overlay';
 import { ProductService } from '../product.service';
 import { QuoteService } from '../quote.service';
-import { CartOverlayService } from '../cartoverlay.service';
+import { CartService } from '../cart.service';
+import { MessagesModule } from 'primeng/messages';
 
 @Component({
   selector: 'app-menubar',
@@ -20,6 +21,7 @@ import { CartOverlayService } from '../cartoverlay.service';
     MinicartComponent,
     OverlayModule,
     CommonModule,
+    MessagesModule,
   ],
   templateUrl: './menubar.component.html',
   styleUrl: './menubar.component.scss',
@@ -28,7 +30,7 @@ export class MenubarComponent {
   items: MenuItem[] | undefined;
   quoteProducts: ProductQuote[] = [];
   productService: ProductService = inject(ProductService);
-  cartOverlayService: CartOverlayService = inject(CartOverlayService);
+  cartService: CartService = inject(CartService);
   quoteService: QuoteService = inject(QuoteService);
 
   ngOnInit() {
@@ -62,7 +64,7 @@ export class MenubarComponent {
         this.quoteProducts.push(productQuote);
       }
     }
-    this.cartOverlayService.toggleOverlay();
+    this.cartService.toggleOverlay();
 }
 
 }

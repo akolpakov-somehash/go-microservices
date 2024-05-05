@@ -39,6 +39,7 @@ type QuoteStorage interface {
 	AddProduct(customerId int32, productId int32, quantity int32) (*Quote, error)
 	RemoveProduct(customerId int32, productId int32) (*Quote, error)
 	UpdateQuantity(customerId int32, productId int32, quantity int32) (*Quote, error)
+	ClearQuote(customerId int32, isLocked bool)
 	LockQuoteRead()
 	UnlockQuoteRead()
 	LockQuoteWrite()
@@ -64,6 +65,15 @@ func (s *QuoteStorageImpl) GetQuote(customerId int32) *Quote {
 		s.quotes[customerId] = quote
 	}
 	return quote
+}
+
+func (s *QuoteStorageImpl) ClearQuote(customerId int32, isLocked bool) {
+	if !isLocked {
+		s.LockQuoteWrite()
+		defer s.UnlockQuoteWrite()
+	}
+
+	delete(s.quotes, customerId)
 }
 
 func (s *QuoteStorageImpl) LockQuoteRead() {
