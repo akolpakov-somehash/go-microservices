@@ -1,13 +1,16 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MenubarModule } from 'primeng/menubar';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, Message } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
-import { ProductTile } from '../product-tile';
-import { Quote, QuoteItem } from '../quote';
+import { ProductTile, ProductQuote } from '../product-tile';
+import { Quote } from '../quote';
 import { MinicartComponent } from '../minicart/minicart.component'; 
 import { OverlayModule } from 'primeng/overlay';
 import { ProductService } from '../product.service';
 import { QuoteService } from '../quote.service';
+import { CartService } from '../cart.service';
+import { MessagesModule } from 'primeng/messages';
 
 @Component({
   selector: 'app-menubar',
@@ -17,18 +20,18 @@ import { QuoteService } from '../quote.service';
     DialogModule,
     MinicartComponent,
     OverlayModule,
+    CommonModule,
+    MessagesModule,
   ],
   templateUrl: './menubar.component.html',
   styleUrl: './menubar.component.scss',
 })
 export class MenubarComponent {
   items: MenuItem[] | undefined;
-  products: ProductTile[] = [];
+  quoteProducts: ProductQuote[] = [];
   productService: ProductService = inject(ProductService);
+  cartService: CartService = inject(CartService);
   quoteService: QuoteService = inject(QuoteService);
-
-  overlayVisible: boolean = false;
-
 
   ngOnInit() {
     this.items = [
@@ -49,14 +52,19 @@ export class MenubarComponent {
   async showDialog() {
     const quote: Quote = await this.quoteService.getQuote();
     console.log('Quote:', quote);
+    this.quoteProducts = [];
     for (const item of quote.itemsList) {
       console.log('Item:', item);
       const product: ProductTile | undefined = await this.productService.getProductById(item.productid);
-      if (product !== undefined) { // Check if product is not undefined
-        this.products.push(product);
+      const productQuote: ProductQuote = {
+        product: product !== undefined ? product : {} as ProductTile,
+        quantity: item.quantity,
+      };
+      if (product !== undefined) {
+        this.quoteProducts.push(productQuote);
       }
     }
-    this.overlayVisible = !this.overlayVisible;
+    this.cartService.toggleOverlay();
 }
 
 }

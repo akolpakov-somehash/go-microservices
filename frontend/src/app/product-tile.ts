@@ -5,3 +5,8 @@ export interface ProductTile {
     price: number;
     description: string;
 }
+
+export interface ProductQuote {
+    product: ProductTile;
+    quantity: number;
+}
